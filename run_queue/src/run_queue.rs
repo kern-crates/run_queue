@@ -1,7 +1,6 @@
 use alloc::sync::Arc;
-use lazy_init::LazyInit;
 use scheduler::BaseScheduler;
-use taskctx::switch_mm;
+//use taskctx::switch_mm;
 use taskctx::TaskState;
 /*
 use alloc::collections::VecDeque;
@@ -9,14 +8,15 @@ use alloc::collections::VecDeque;
 use crate::{AxTaskRef, Scheduler, TaskInner, WaitQueue};
 */
 use core::sync::atomic::Ordering;
-use spinbase::SpinNoIrq;
+use spinirq::SpinNoIrq;
 use taskctx::{CtxRef, CurrentCtx};
+use crate::bootcell::BootOnceCell;
 
 type SchedItem = scheduler::CFSTask<CtxRef>;
 type Scheduler = scheduler::CFScheduler<CtxRef>;
 
 // TODO: per-CPU
-pub(crate) static RUN_QUEUE: LazyInit<SpinNoIrq<AxRunQueue>> = LazyInit::new();
+pub(crate) static RUN_QUEUE: BootOnceCell<SpinNoIrq<AxRunQueue>> = BootOnceCell::new();
 
 /*
 // TODO: per-CPU
@@ -192,6 +192,7 @@ impl AxRunQueue {
             return;
         }
 
+        /*
         // Switch mm from prev to next
         // kernel ->   user   switch + mmdrop_lazy_tlb() active
         //   user ->   user   switch
@@ -221,6 +222,7 @@ impl AxRunQueue {
         if prev_task.try_pgd().is_none() {
             prev_task.active_mm_id.store(0, Ordering::SeqCst);
         }
+        */
 
         unsafe {
             let prev_ctx_ptr = prev_task.ctx_mut_ptr();
