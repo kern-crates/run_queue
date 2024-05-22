@@ -1,17 +1,20 @@
 #![no_std]
 
 use taskctx::CtxRef;
+use taskctx::SchedInfo;
 use crate::run_queue::RUN_QUEUE;
 use spinbase::SpinNoIrq;
 
 #[macro_use]
 extern crate log;
 extern crate alloc;
+use alloc::sync::Arc;
+
 mod run_queue;
 pub use run_queue::AxRunQueue;
 
-pub fn init() {
-    RUN_QUEUE.init_by(AxRunQueue::new());
+pub fn init(idle: Arc<SchedInfo>) {
+    RUN_QUEUE.init_by(AxRunQueue::new(idle));
 }
 
 pub fn task_rq(_task: &CtxRef) -> &SpinNoIrq<AxRunQueue> {

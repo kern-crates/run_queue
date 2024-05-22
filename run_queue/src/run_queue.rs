@@ -3,6 +3,7 @@ use lazy_init::LazyInit;
 use scheduler::BaseScheduler;
 use taskctx::switch_mm;
 use taskctx::TaskState;
+use taskctx::SchedInfo;
 /*
 use alloc::collections::VecDeque;
 
@@ -30,12 +31,14 @@ static IDLE_TASK: LazyInit<AxTaskRef> = LazyInit::new();
 
 pub struct AxRunQueue {
     scheduler: Scheduler,
+    idle: Arc<SchedItem>,
 }
 
 impl AxRunQueue {
-    pub fn new() -> SpinNoIrq<Self> {
+    pub fn new(idle: Arc<SchedInfo>) -> SpinNoIrq<Self> {
+        let idle = Arc::new(SchedItem::new(idle));
         let scheduler = Scheduler::new();
-        SpinNoIrq::new(Self { scheduler })
+        SpinNoIrq::new(Self { scheduler, idle })
     }
 
     pub fn activate_task(&mut self, task: CtxRef) {
@@ -180,7 +183,9 @@ impl AxRunQueue {
                     .put_prev_task(Arc::new(SchedItem::new(prev.clone())), preempt);
             }
         }
-        let next = self.scheduler.pick_next_task().unwrap();
+        let next = self.scheduler.pick_next_task().unwrap_or_else(|| {
+            self.idle.clone()
+        });
         self.switch_to(prev, next.inner().clone());
     }
 
