@@ -61,13 +61,6 @@ impl AxRunQueue {
     }
 
     /*
-    pub fn yield_current(&mut self) {
-        let curr = crate::current();
-        trace!("task yield: {}", curr.id_name());
-        assert!(curr.is_running());
-        self.resched(false);
-    }
-
     pub fn set_current_priority(&mut self, prio: isize) -> bool {
         self.scheduler
             .set_priority(crate::current().as_task_ref(), prio)
@@ -127,15 +120,13 @@ impl AxRunQueue {
         let curr = taskctx::current_ctx();
         assert!(curr.tid() != 0);
         info!("task block: {}", curr.tid());
-        /*
         assert!(curr.is_running());
-        assert!(!curr.is_idle());
+        //assert!(!curr.is_idle());
 
         // we must not block current task with preemption disabled.
-        assert!(curr.can_preempt(1));
+        //assert!(curr.can_preempt(1));
 
         curr.set_state(TaskState::Blocked);
-        */
         wait_queue_push(curr.clone());
         self.resched(false);
     }
@@ -211,7 +202,7 @@ impl AxRunQueue {
                 );
             }
             None => {
-                error!(
+                info!(
                     "###### {} {};",
                     prev_task.active_mm_id.load(Ordering::SeqCst),
                     next_task.active_mm_id.load(Ordering::SeqCst)
