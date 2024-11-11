@@ -1,0 +1,11 @@
+{
+  "name": "run_queue",
+  "description": "Run queue for task.",
+  "authors": [{
+    "name": "Shi Lei",
+    "email": "shi_lei@massclouds.com"
+  }],
+  "keywords": ["console", "boot"],
+  "repo": "shilei-massclouds/run_queue",
+  "doc_url": "https://github.com/shilei-massclouds/run_queue/blob/main/README.md"
+}
